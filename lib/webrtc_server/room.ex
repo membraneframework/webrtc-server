@@ -147,6 +147,7 @@ defmodule Membrane.WebRTC.Server.Room do
           data: %{peer_id: auth_data.peer_id},
           event: "joined",
           from: auth_data.peer_id,
+          from_metadata: auth_data.metadata,
           to: "all"
         }
 

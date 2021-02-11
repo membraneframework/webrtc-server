@@ -2,8 +2,8 @@ defmodule Membrane.WebRTC.Server.Peer do
   @moduledoc """
   Module that manages websocket lifecycle and communication with client.
 
-  Adapts the 
-  [`:cowboy_websocket`](https://ninenines.eu/docs/en/cowboy/2.6/manual/cowboy_websocket/) 
+  Adapts the
+  [`:cowboy_websocket`](https://ninenines.eu/docs/en/cowboy/2.6/manual/cowboy_websocket/)
   behaviour.
   """
 
@@ -20,22 +20,22 @@ defmodule Membrane.WebRTC.Server.Peer do
   @type peer_id :: String.t()
 
   @typedoc """
-  Defines custom state of a peer, passed as argument and returned by callbacks. 
+  Defines custom state of a peer, passed as argument and returned by callbacks.
   """
   @type internal_state :: any()
 
   @doc """
   Callback invoked to extract credentials and metadata from request.
 
-  After successfully parsing the request, `{:ok, credentials, metadata, room_name}` should be 
-  returned. Credentials and metadata will be used to create `Membrane.WebRTC.Server.Peer.AuthData` 
+  After successfully parsing the request, `{:ok, credentials, metadata, room_name}` should be
+  returned. Credentials and metadata will be used to create `Membrane.WebRTC.Server.Peer.AuthData`
   which is passed to `c:on_init/3` and `c:Membrane.WebRTC.Server.Room.on_join/2`.
 
   Returning `{:error, details}` will abort initialization of WebSocket
   and return a response with status 400.
 
   Peer will later try to join the room registered under `room_name`.
-  If no such room can be found, peer will abort initialization of WebSocket 
+  If no such room can be found, peer will abort initialization of WebSocket
   and return a response with status 404.
   """
   @callback parse_request(request :: :cowboy_req.req()) ::
@@ -45,17 +45,17 @@ defmodule Membrane.WebRTC.Server.Peer do
   @doc """
   Callback invoked when a peer process is started.
 
-  Useful both for confirming the identity of the client, as well as setting up state and/or 
+  Useful both for confirming the identity of the client, as well as setting up state and/or
   custom [Cowboy WebSocket](https://ninenines.eu/docs/en/cowboy/2.6/manual/cowboy_websocket/)
   options, like timeout or maximal frame size.
 
-  Options argument is value given under the `:custom_options` field in 
+  Options argument is value given under the `:custom_options` field in
   `Membrane.WebRTC.Server.Options`.
 
   Returning `{:ok, websocket_options, state}` will set up WebSocket options to the ones returned.
 
-  Returning `{:ok, state}` will set up default WebSocket options with #{div(@timeout, 60000)} 
-  minutes timeout. 
+  Returning `{:ok, state}` will set up default WebSocket options with #{div(@timeout, 60000)}
+  minutes timeout.
 
   Returning `{:error, details}` will abort initialization of WebSocket
   and return a response with status 401.
@@ -132,7 +132,8 @@ defmodule Membrane.WebRTC.Server.Peer do
         room: room,
         peer_id: peer_id,
         internal_state: internal_state,
-        auth_data: auth_data
+        auth_data: auth_data,
+        metadata: auth_data.metadata
       }
 
       {:cowboy_websocket, request, state, websocket_options}
@@ -319,6 +320,7 @@ defmodule Membrane.WebRTC.Server.Peer do
       data: message["data"],
       event: message["event"],
       from: state.peer_id,
+      from_metadata: state.metadata,
       to: message["to"]
     }
 
